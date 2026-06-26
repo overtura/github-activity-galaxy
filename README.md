@@ -23,6 +23,22 @@ pnpm dev
 pnpm check
 ```
 
+## 로컬 maintainer 검증
+로컬 Codex self-improvement 루프가 문서나 앱 코드를 정리한 뒤에는 target repo 검증과 중앙 control plane 검증을 함께 확인한다.
+
+```bash
+pnpm check
+```
+
+중앙 control plane root에서는 다음 dry-run 검증을 실행한다.
+
+```bash
+python -m self_maintainer_bot.cli smoke-check
+python -m self_maintainer_bot.cli validate-evals
+```
+
+`python -m self_maintainer_bot.cli eval-docs`는 API 비용이 드는 eval이 필요할 때만 별도로 실행한다.
+
 ## 자가 개선
 이 저장소에는 자가 개선 엔진을 두지 않는다. 중앙 control plane인 `okorion/self-improving-maintainer-bot`이 `profiles/overtura/github-activity-galaxy.json` profile로 이 저장소를 target repo로 다룬다.
 
