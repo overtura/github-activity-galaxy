@@ -42,6 +42,20 @@ python -m self_maintainer_bot.cli validate-evals
 
 GitHub Actions는 dry-run, check, report 자동화로만 취급하며 배포, credential 변경, 자동 merge를 수행하지 않는다.
 
+## Vercel 배포
+- 배포 설정: `vercel.json`
+- framework: Vite
+- build command: `pnpm build`
+- output directory: `dist`
+- production deploy: Vercel CLI 로그인 또는 `VERCEL_TOKEN` 설정 후 `npx vercel --prod --yes`
+
+현재 저장소는 Vercel 정적 배포 설정까지 준비되어 있다. 이 Codex 실행 환경에서는 Vercel CLI/커넥터 인증이 확인되지 않아 production URL 발급은 인증 후 진행한다.
+
+## 최근 업데이트
+- 밝은 톤 디자인 시스템과 3D 활동 지도 UI를 정리했다.
+- 주간/월간 활동 지표, 집중 신호, 유형별 분포를 비교하는 화면 개선을 반영했다.
+- 중앙 maintainer bot은 이 레포의 GitHub 활동 시각화 맥락과 최근 PR 이력을 기준으로 독립적인 개선 후보를 찾는다.
+
 ## 자가 개선
 이 저장소에는 자가 개선 엔진을 두지 않는다. 중앙 control plane인 `okorion/self-improving-maintainer-bot`이 `profiles/overtura/github-activity-galaxy.json` profile로 이 저장소를 target repo로 다룬다.
 
