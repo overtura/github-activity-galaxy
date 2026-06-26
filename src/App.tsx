@@ -17,12 +17,25 @@ type ActivityPoint = {
   position: [number, number, number]
 }
 
+type PeriodOption = {
+  mode: string
+  buttonLabel: string
+  metricLabel: string
+}
+
 const ACTIVITY_BUCKETS = [
   { label: 'PR', count: 18, color: '#007da5', radius: 1.2 },
   { label: 'Issue', count: 31, color: '#4f8f32', radius: 1.8 },
   { label: 'Commit', count: 74, color: '#c4457c', radius: 2.45 },
   { label: 'Review', count: 12, color: '#b77900', radius: 3.0 },
 ] as const satisfies readonly ActivityBucket[]
+
+const PERIOD_OPTIONS = [
+  { mode: 'week', buttonLabel: '이번 주', metricLabel: '주간' },
+  { mode: 'month', buttonLabel: '이번 달', metricLabel: '월간' },
+] as const satisfies readonly PeriodOption[]
+
+type PeriodMode = (typeof PERIOD_OPTIONS)[number]['mode']
 
 const createActivityPoint = (bucket: ActivityBucket, bucketIndex: number, index: number): ActivityPoint => {
   const angle = (index / bucket.count) * Math.PI * 2 + bucketIndex * 0.7
@@ -48,6 +61,9 @@ const sumActivityCount = (buckets: readonly ActivityBucket[]) => buckets.reduce(
 
 const ACTIVITY_POINTS = createActivityPoints(ACTIVITY_BUCKETS)
 const TOTAL_ACTIVITY_COUNT = sumActivityCount(ACTIVITY_BUCKETS)
+
+const getPeriodOption = (mode: PeriodMode) =>
+  PERIOD_OPTIONS.find((option) => option.mode === mode) ?? PERIOD_OPTIONS[0]
 
 function Galaxy() {
   const groupRef = useRef<THREE.Group>(null)
@@ -86,7 +102,8 @@ function Galaxy() {
 }
 
 export default function App() {
-  const [mode, setMode] = useState<'week' | 'month'>('week')
+  const [mode, setMode] = useState<PeriodMode>('week')
+  const selectedPeriod = getPeriodOption(mode)
 
   return (
     <main className="shell">
@@ -99,12 +116,16 @@ export default function App() {
             민감 정보 없이 샘플 데이터로 동작하고, 이후 PR에서 GitHub API 연결을 안전하게 확장합니다.
           </p>
           <div className="toolbar" role="group" aria-label="기간 선택">
-            <button className={mode === 'week' ? 'active' : ''} type="button" onClick={() => setMode('week')}>
-              이번 주
-            </button>
-            <button className={mode === 'month' ? 'active' : ''} type="button" onClick={() => setMode('month')}>
-              이번 달
-            </button>
+            {PERIOD_OPTIONS.map((option) => (
+              <button
+                key={option.mode}
+                className={mode === option.mode ? 'active' : ''}
+                type="button"
+                onClick={() => setMode(option.mode)}
+              >
+                {option.buttonLabel}
+              </button>
+            ))}
           </div>
           <dl className="metrics">
             <div>
@@ -113,7 +134,7 @@ export default function App() {
             </div>
             <div>
               <dt>보기 모드</dt>
-              <dd>{mode === 'week' ? '주간' : '월간'}</dd>
+              <dd>{selectedPeriod.metricLabel}</dd>
             </div>
           </dl>
         </div>
