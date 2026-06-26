@@ -23,6 +23,16 @@ pnpm dev
 pnpm check
 ```
 
+## 로컬 maintainer bot 점검
+중앙 control plane에서 이 target repo를 로컬 Codex로 점검한 뒤에는 bot root에서 다음 명령을 실행한다.
+
+```bash
+python -m self_maintainer_bot.cli smoke-check
+python -m self_maintainer_bot.cli validate-evals
+```
+
+이 점검은 외부 API 키나 개인 활동 데이터를 요구하지 않는 문서/설정 검증용이다.
+
 ## 자가 개선
 이 저장소에는 자가 개선 엔진을 두지 않는다. 중앙 control plane인 `okorion/self-improving-maintainer-bot`이 `profiles/overtura/github-activity-galaxy.json` profile로 이 저장소를 target repo로 다룬다.
 
