@@ -25,6 +25,7 @@ pnpm check
 
 ## 로컬 maintainer 검증
 로컬 Codex self-improvement 루프가 문서나 앱 코드를 정리한 뒤에는 target repo 검증과 중앙 control plane 검증을 함께 확인한다.
+이 로컬 루프는 사용자의 Codex 로그인/세션을 사용하며 `OPENAI_API_KEY` 같은 별도 모델 API 키를 요구하지 않는다.
 
 ```bash
 pnpm check
