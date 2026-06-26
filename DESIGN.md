@@ -1,27 +1,28 @@
 # DESIGN.md - GitHub Activity Galaxy
 
 ## Product Intent
-GitHub 활동을 3D 은하로 보여주는 한국어 운영 지도다. 사용자는 기간을 선택하고 PR, issue, commit, review 밀도를 빠르게 파악한다.
+GitHub 활동을 3D 지도로 보여주는 시각 운영 도구다. 사용자는 기간을 선택하고 PR, issue, commit, review 반응을 빠르게 파악한다.
 
 ## Design Authority
-충돌 시 우선순위는 접근성, 이 문서, CSS semantic token, 컴포넌트 계약, 외부 디자인 도구/레퍼런스 순서다. 외부 브랜드의 팔레트, 로고, 서체, 고유한 composition은 복제하지 않는다.
+우선순위는 이 문서, CSS semantic token, 컴포넌트 규약, 외부 디자인 도구와 레퍼런스 순서다. 외부 브랜드의 고유한 로고, 서체, 구성은 복제하지 않는다.
 
 ## Visual Character
 ```txt
 Operational
 Spatial
+Bright
 Readable
 Calm
 ```
 
-- 3D galaxy는 activity map이며 장식용 배경이 아니다.
-- cyan은 primary status, yellow는 review/attention, pink는 commit activity에 제한한다.
+- 3D galaxy는 검은 우주 배경이 아니라 밝은 activity map이다.
+- cyan은 primary status, amber는 review/attention, rose는 commit activity를 표현한다.
 - metrics는 compact하고 scan 가능해야 한다.
 - GitHub 자체 브랜드 색과 Octocat visual identity를 복제하지 않는다.
 
 ## Typography
 - UI: Inter, Pretendard, system-ui
-- Display: 42-84px
+- Display: 40-76px
 - Body: 18/31
 - Metric value: 28/34, semibold, tabular numbers
 - Control: 14/20
@@ -45,12 +46,12 @@ Choose period -> Read density -> Inspect orbit -> Propose data/visual PR
 
 ## Responsive Rules
 - 900px 이하에서는 단일 column이다.
-- Metrics panel은 390px에서 overflow 없이 2-column 또는 1-column로 자연스럽게 줄어든다.
+- Metrics panel은 390px에서 overflow 없이 2-column 또는 1-column로 자연스럽게 줄어들어야 한다.
 - Canvas minimum height는 360px이다.
 
 ## Anti-patterns
 - GitHub 브랜드 복제
-- full dark ops dashboard
+- 검은 ops dashboard
 - crowded fake analytics
 - activity를 숫자만으로 표현
 - color-only status

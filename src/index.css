@@ -6,7 +6,7 @@
   background: var(--color-bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 * {
@@ -27,9 +27,9 @@ button {
   min-height: 100vh;
   padding: var(--space-shell);
   background:
-    linear-gradient(135deg, rgba(110, 231, 255, 0.16), transparent 36%),
-    radial-gradient(circle at 80% 20%, rgba(250, 204, 21, 0.13), transparent 34%),
-    var(--color-bg);
+    linear-gradient(135deg, rgb(0 125 165 / 12%), transparent 36%),
+    radial-gradient(circle at 82% 18%, rgb(183 121 0 / 12%), transparent 34%),
+    linear-gradient(180deg, #ffffff 0%, var(--color-bg) 58%, #eef6ff 100%);
 }
 
 .panel {
@@ -53,9 +53,11 @@ button {
 
 h1 {
   margin: 0;
-  font-size: clamp(42px, 7vw, 84px);
-  line-height: 0.98;
+  font-size: clamp(40px, 6vw, 76px);
+  line-height: 1.04;
   letter-spacing: 0;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 .lead {
@@ -63,6 +65,8 @@ h1 {
   color: var(--color-muted);
   font-size: 18px;
   line-height: 1.75;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 .toolbar {
@@ -73,6 +77,7 @@ h1 {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-pill);
   background: var(--color-surface);
+  box-shadow: 0 14px 40px rgb(54 82 116 / 10%);
 }
 
 .toolbar button {
@@ -104,7 +109,8 @@ h1 {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-frame);
   padding: 16px;
-  background: var(--color-surface);
+  background: var(--color-surface-strong);
+  box-shadow: 0 16px 42px rgb(54 82 116 / 10%);
 }
 
 .metrics dt {
@@ -124,6 +130,9 @@ h1 {
   overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-frame);
+  background:
+    radial-gradient(circle at 50% 40%, rgb(0 125 165 / 10%), transparent 38%),
+    linear-gradient(180deg, #ffffff, #eef7ff);
   box-shadow: var(--shadow-stage);
 }
 

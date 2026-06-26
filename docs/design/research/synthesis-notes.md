@@ -7,13 +7,15 @@
 - operation metrics와 3D map을 같은 우선순위로 둔다.
 - 색상은 activity type과 status 의미를 분리한다.
 - seed data는 private 정보 없이 설명 가능해야 한다.
+- 기본 테마는 밝은 배경과 고대비 본문 텍스트를 사용한다.
 
 ## Rejected Principles
 - GitHub brand imitation은 피한다.
 - dense table dashboard는 v1 목적과 맞지 않아 제외한다.
+- 검은 ops dashboard는 기본 방향에서 제외한다.
 
 ## Token Changes
-- `src/design-system/base.css`에 galaxy ops dark theme semantic token을 둔다.
+- `src/design-system/base.css`에 bright operations map semantic token을 둔다.
 
 ## Component Contract Changes
 - period segmented control, metric card, canvas frame은 token 기반으로 고정한다.
