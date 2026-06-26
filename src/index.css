@@ -1,11 +1,12 @@
+@import './design-system/base.css';
+
 :root {
-  font-family:
-    Inter, Pretendard, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    sans-serif;
-  color: #f5f7fb;
-  background: #060712;
+  font-family: var(--font-ui);
+  color: var(--color-text);
+  background: var(--color-bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  color-scheme: dark;
 }
 
 * {
@@ -24,17 +25,18 @@ button {
 
 .shell {
   min-height: 100vh;
-  padding: clamp(20px, 5vw, 56px);
+  padding: var(--space-shell);
   background:
     linear-gradient(135deg, rgba(110, 231, 255, 0.16), transparent 36%),
-    radial-gradient(circle at 80% 20%, rgba(250, 204, 21, 0.13), transparent 34%), #060712;
+    radial-gradient(circle at 80% 20%, rgba(250, 204, 21, 0.13), transparent 34%),
+    var(--color-bg);
 }
 
 .panel {
-  min-height: calc(100vh - clamp(40px, 10vw, 112px));
+  min-height: calc(100vh - (var(--space-shell) * 2));
   display: grid;
   grid-template-columns: minmax(320px, 0.8fr) minmax(360px, 1.2fr);
-  gap: clamp(24px, 5vw, 64px);
+  gap: var(--space-section);
   align-items: center;
 }
 
@@ -44,7 +46,7 @@ button {
 
 .kicker {
   margin: 0 0 16px;
-  color: #6ee7ff;
+  color: var(--color-primary);
   font-size: 14px;
   font-weight: 800;
 }
@@ -58,7 +60,7 @@ h1 {
 
 .lead {
   margin: 24px 0 0;
-  color: #b7c3d6;
+  color: var(--color-muted);
   font-size: 18px;
   line-height: 1.75;
 }
@@ -68,24 +70,27 @@ h1 {
   gap: 8px;
   margin-top: 30px;
   padding: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
 }
 
 .toolbar button {
   min-height: 38px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   padding: 0 16px;
-  color: #dce8f8;
+  color: var(--color-text);
   background: transparent;
   cursor: pointer;
+  transition:
+    background var(--motion-standard),
+    color var(--motion-standard);
 }
 
 .toolbar button.active {
-  color: #07101f;
-  background: #6ee7ff;
+  color: var(--color-primary-ink);
+  background: var(--color-primary);
 }
 
 .metrics {
@@ -96,14 +101,14 @@ h1 {
 }
 
 .metrics div {
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-frame);
   padding: 16px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--color-surface);
 }
 
 .metrics dt {
-  color: #8fa2bd;
+  color: var(--color-subtle);
   font-size: 13px;
 }
 
@@ -117,9 +122,9 @@ h1 {
   height: min(74vh, 780px);
   min-height: 440px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 8px;
-  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-frame);
+  box-shadow: var(--shadow-stage);
 }
 
 @media (max-width: 900px) {

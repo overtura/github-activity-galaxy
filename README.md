@@ -31,6 +31,11 @@ pnpm self-improve:guard
 
 `Self Improve` workflow는 GitHub Models 기반 diff를 생성하고, guard와 `pnpm check` 통과 후 자동 PR과 squash merge를 수행한다.
 
+## 디자인 시스템
+- 기준 문서: `DESIGN.md`
+- 실행 토큰: `src/design-system/base.css`
+- 참고 기록: `docs/design/`
+
 ## 범위 밖
 - 실제 GitHub token 저장
 - 비공개 저장소 데이터를 기본 샘플에 포함

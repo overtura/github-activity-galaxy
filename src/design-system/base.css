@@ -1,0 +1,32 @@
+:root {
+  --font-ui: Inter, Pretendard, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  --color-bg: #060712;
+  --color-text: #f5f7fb;
+  --color-muted: #b7c3d6;
+  --color-subtle: #8fa2bd;
+  --color-border: rgb(255 255 255 / 14%);
+  --color-surface: rgb(255 255 255 / 6%);
+  --color-surface-strong: rgb(255 255 255 / 10%);
+  --color-primary: #6ee7ff;
+  --color-primary-ink: #07101f;
+  --color-attention: #facc15;
+  --color-commit: #f9a8d4;
+  --shadow-stage: 0 30px 100px rgb(0 0 0 / 50%);
+  --radius-frame: 8px;
+  --radius-pill: 999px;
+  --space-shell: clamp(20px, 5vw, 56px);
+  --space-section: clamp(24px, 5vw, 64px);
+  --motion-standard: 180ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
