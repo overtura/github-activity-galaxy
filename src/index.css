@@ -98,6 +98,16 @@ h1 {
   background: var(--color-primary);
 }
 
+.period-note {
+  max-width: 56ch;
+  margin: 18px 0 0;
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 1.6;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
 .metrics {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -122,6 +132,80 @@ h1 {
   margin: 8px 0 0;
   font-size: 28px;
   font-weight: 800;
+  line-height: 1.2;
+  word-break: keep-all;
+}
+
+.metrics p {
+  margin: 6px 0 0;
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: 1.45;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.bucket-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bucket-list li {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-frame);
+  background: rgb(255 255 255 / 68%);
+}
+
+.bucket-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+}
+
+.bucket-label {
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bucket-list strong {
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.bucket-list small {
+  color: var(--color-subtle);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.orbit-label {
+  display: block;
+  min-width: max-content;
+  padding: 2px 6px;
+  border: 1px solid rgb(255 255 255 / 86%);
+  border-radius: 6px;
+  background: rgb(255 255 255 / 78%);
+  box-shadow: 0 8px 18px rgb(54 82 116 / 10%);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
+  pointer-events: none;
+  transform: translateX(-100%);
+  white-space: nowrap;
 }
 
 .galaxy {
@@ -144,5 +228,11 @@ h1 {
   .galaxy {
     min-height: 360px;
     height: 56vh;
+  }
+}
+
+@media (max-width: 560px) {
+  .bucket-list {
+    grid-template-columns: 1fr;
   }
 }
