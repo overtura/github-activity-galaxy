@@ -1,36 +1,54 @@
 import { OrbitControls, Text } from '@react-three/drei'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Bloom, EffectComposer } from '@react-three/postprocessing'
-import { useMemo, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import * as THREE from 'three'
 
-const activity = [
+type ActivityBucket = {
+  label: string
+  count: number
+  color: string
+  radius: number
+}
+
+type ActivityPoint = {
+  key: string
+  color: string
+  position: [number, number, number]
+}
+
+const ACTIVITY_BUCKETS = [
   { label: 'PR', count: 18, color: '#007da5', radius: 1.2 },
   { label: 'Issue', count: 31, color: '#4f8f32', radius: 1.8 },
   { label: 'Commit', count: 74, color: '#c4457c', radius: 2.45 },
   { label: 'Review', count: 12, color: '#b77900', radius: 3.0 },
-] as const
+] as const satisfies readonly ActivityBucket[]
+
+const createActivityPoints = (buckets: readonly ActivityBucket[]): ActivityPoint[] =>
+  buckets.flatMap((bucket, bucketIndex) =>
+    Array.from({ length: bucket.count }, (_, index) => {
+      const angle = (index / bucket.count) * Math.PI * 2 + bucketIndex * 0.7
+      const spiral = bucket.radius + index * 0.006
+
+      return {
+        key: `${bucket.label}-${index}`,
+        color: bucket.color,
+        position: [
+          Math.cos(angle) * spiral,
+          Math.sin(index * 1.7) * 0.22 + bucketIndex * 0.08,
+          Math.sin(angle) * spiral,
+        ],
+      }
+    }),
+  )
+
+const sumActivityCount = (buckets: readonly ActivityBucket[]) => buckets.reduce((sum, item) => sum + item.count, 0)
+
+const ACTIVITY_POINTS = createActivityPoints(ACTIVITY_BUCKETS)
+const TOTAL_ACTIVITY_COUNT = sumActivityCount(ACTIVITY_BUCKETS)
 
 function Galaxy() {
   const groupRef = useRef<THREE.Group>(null)
-  const points = useMemo(() => {
-    return activity.flatMap((bucket, bucketIndex) =>
-      Array.from({ length: bucket.count }, (_, index) => {
-        const angle = (index / bucket.count) * Math.PI * 2 + bucketIndex * 0.7
-        const spiral = bucket.radius + index * 0.006
-        return {
-          key: `${bucket.label}-${index}`,
-          label: bucket.label,
-          color: bucket.color,
-          position: [
-            Math.cos(angle) * spiral,
-            Math.sin(index * 1.7) * 0.22 + bucketIndex * 0.08,
-            Math.sin(angle) * spiral,
-          ] as [number, number, number],
-        }
-      }),
-    )
-  }, [])
 
   useFrame(({ clock }) => {
     if (groupRef.current) groupRef.current.rotation.y = clock.getElapsedTime() * 0.08
@@ -38,19 +56,19 @@ function Galaxy() {
 
   return (
     <group ref={groupRef}>
-      {activity.map((bucket) => (
+      {ACTIVITY_BUCKETS.map((bucket) => (
         <mesh key={`${bucket.label}-orbit`} rotation={[Math.PI / 2, 0, 0]}>
           <torusGeometry args={[bucket.radius, 0.006, 8, 120]} />
           <meshBasicMaterial color={bucket.color} transparent opacity={0.2} />
         </mesh>
       ))}
-      {points.map((point) => (
+      {ACTIVITY_POINTS.map((point) => (
         <mesh key={point.key} position={point.position}>
           <sphereGeometry args={[0.042, 16, 16]} />
           <meshStandardMaterial color={point.color} emissive={point.color} emissiveIntensity={0.6} />
         </mesh>
       ))}
-      {activity.map((bucket, index) => (
+      {ACTIVITY_BUCKETS.map((bucket, index) => (
         <Text
           key={bucket.label}
           position={[bucket.radius + 0.2, 0.48 + index * 0.18, 0]}
@@ -89,7 +107,7 @@ export default function App() {
           <dl className="metrics">
             <div>
               <dt>활동 노드</dt>
-              <dd>{activity.reduce((sum, item) => sum + item.count, 0)}</dd>
+              <dd>{TOTAL_ACTIVITY_COUNT}</dd>
             </div>
             <div>
               <dt>보기 모드</dt>
