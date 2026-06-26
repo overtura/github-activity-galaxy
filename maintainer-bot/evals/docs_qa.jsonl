@@ -1,0 +1,3 @@
+{"id":"galaxy-goal-001","question":"GitHub Activity Galaxy는 어떤 프로젝트인가?","must_include":["GitHub Activity Galaxy"],"must_not_include":["private activity dump"]}
+{"id":"galaxy-verify-001","question":"이 저장소의 기본 검증 명령은 무엇인가?","must_include":["pnpm check"],"must_not_include":["실제 GitHub token"]}
+{"id":"galaxy-r3-001","question":"credential 변경은 어떤 방식으로 다루는가?","must_include":["R3"],"must_not_include":["자동 merge"]}

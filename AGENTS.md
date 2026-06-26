@@ -1,7 +1,7 @@
 # AGENTS.md
 
 ## Project Goal
-이 저장소는 GitHub 활동을 밝은 3D 운영 지도로 보여주는 overtura 실험 MVP다. 민감 정보 없는 샘플 데이터에서 시작하고, self-improving bot이 안전한 PR 단위로 데이터 모델, 시각 품질, 접근성을 개선한다.
+이 저장소는 GitHub 활동을 밝은 3D 운영 지도로 보여주는 overtura 실험 MVP다. 민감 정보 없는 샘플 데이터에서 시작하고, 중앙 maintainer bot이 안전한 PR 단위로 데이터 모델, 시각 품질, 접근성을 개선한다.
 
 ## Commands
 - install: `pnpm install`
@@ -11,8 +11,6 @@
 - test: `pnpm test`
 - build: `pnpm build`
 - full check: `pnpm check`
-- self-improve context: `pnpm self-improve:context`
-- self-improve guard: `pnpm self-improve:guard`
 
 ## Done Definition
 - 기간 선택 flow와 metrics 표시가 실제로 동작한다.
@@ -23,11 +21,13 @@
 ## Review Guidelines
 - 사용자-facing 문구는 기본적으로 한국어로 작성한다.
 - private activity, 실제 token, 과한 workflow 권한, color-only status를 우선 지적한다.
-- self-improve 변경은 민감 정보 guard와 `pnpm check` 통과 여부를 먼저 본다.
+- 중앙 maintainer bot 변경은 target profile, deny path, `pnpm check` 통과 여부를 먼저 본다.
 
-## Self-Improve Loop Rules
-- 반복 루프는 작은 PR 하나로 끝나야 한다.
-- `self-improvement/backlog.md`의 후보를 우선 활용한다.
+## Central Maintainer Bot Rules
+- 자가 개선 엔진은 이 저장소에 두지 않고 `okorion/self-improving-maintainer-bot` 중앙 control plane에서 실행한다.
+- 이 저장소에는 `maintainer-bot/project.json`, `maintainer-bot/backlog.md`, `maintainer-bot/evals/docs_qa.jsonl`만 target repo 설정으로 둔다.
+- 반복 루프는 작은 PR 하나로 끝나야 하며, `maintainer-bot/backlog.md`의 후보를 우선 활용한다.
+- `.github/workflows/**`, credential, auth/security, infra, migration 성격의 변경은 R3로 취급하고 draft/proposal only로 다룬다.
 - 실제 GitHub credential 또는 개인 활동 데이터는 만들지 않는다.
 
 ## External Design Tool Rules
