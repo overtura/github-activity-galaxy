@@ -1,0 +1,23 @@
+{
+  "name": "GitHub Activity Galaxy",
+  "kind": "interactive-3d-activity-map",
+  "runtime": "React + Vite + React Three Fiber",
+  "goal": "GitHub 활동을 한국어 3D 시각화로 보여주고, 자동 PR로 안전하게 개선한다.",
+  "allowedChangeScope": [
+    "src/**",
+    "README.md",
+    "docs/**",
+    ".github/workflows/**",
+    ".github/prompts/**",
+    "self-improvement/**",
+    "scripts/**",
+    "package.json"
+  ],
+  "blockedChangeScope": [
+    ".env*",
+    "*.pem",
+    "*.key",
+    ".npmrc",
+    "실제 GitHub token 또는 private activity dump"
+  ]
+}
