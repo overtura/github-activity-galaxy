@@ -165,14 +165,27 @@ export default function App() {
             </div>
           </dl>
           <ul className="bucket-list" aria-label={`${selectedPeriod.metricLabel} 활동 유형별 분포`}>
-            {selectedPeriod.buckets.map((bucket) => (
-              <li key={bucket.label}>
-                <span className="bucket-swatch" style={{ backgroundColor: bucket.color }} aria-hidden="true" />
-                <span className="bucket-label">{bucket.displayLabel}</span>
-                <strong>{bucket.count}</strong>
-                <small>{Math.round((bucket.count / totalActivityCount) * 100)}%</small>
-              </li>
-            ))}
+            {selectedPeriod.buckets.map((bucket) => {
+              const share = Math.round((bucket.count / totalActivityCount) * 100)
+
+              return (
+                <li key={bucket.label}>
+                  <span className="bucket-swatch" style={{ backgroundColor: bucket.color }} aria-hidden="true" />
+                  <span className="bucket-label">{bucket.displayLabel}</span>
+                  <strong>{bucket.count}</strong>
+                  <small>{share}%</small>
+                  <span className="bucket-share" aria-hidden="true">
+                    <span
+                      style={{
+                        width: `${share}%`,
+                        color: bucket.color,
+                        backgroundColor: bucket.color,
+                      }}
+                    />
+                  </span>
+                </li>
+              )
+            })}
           </ul>
         </div>
         <div className="galaxy" aria-label={`${selectedPeriod.metricLabel} GitHub 활동 3D 지도`}>
