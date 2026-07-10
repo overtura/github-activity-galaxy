@@ -1,207 +1,214 @@
-import { Html, OrbitControls } from '@react-three/drei'
-import { Canvas, useFrame } from '@react-three/fiber'
-import { Bloom, EffectComposer } from '@react-three/postprocessing'
-import { useMemo, useRef, useState } from 'react'
-import * as THREE from 'three'
+import { Pause, Play, RotateCcw, ScanSearch } from 'lucide-react'
+import { useState } from 'react'
+import {
+  getActivityShare,
+  getPeriodOption,
+  getTopBucket,
+  PERIOD_OPTIONS,
+  sumActivityCount,
+  type ActivityKind,
+  type PeriodMode,
+} from './activity-data'
+import { GalaxyScene } from './components/GalaxyScene'
 
-type ActivityBucket = {
-  label: string
-  displayLabel: string
-  count: number
-  color: string
-  radius: number
-}
-
-type ActivityPoint = {
-  key: string
-  color: string
-  position: [number, number, number]
-}
-
-type PeriodOption = {
-  mode: PeriodMode
-  buttonLabel: string
-  metricLabel: string
-  insight: string
-  buckets: readonly ActivityBucket[]
-}
-
-type PeriodMode = 'week' | 'month'
-
-const PERIOD_OPTIONS = [
-  {
-    mode: 'week',
-    buttonLabel: '이번 주',
-    metricLabel: '주간',
-    insight: '이번 주는 커밋 밀도가 높고, 이슈 대응 궤도가 두 번째로 활발합니다.',
-    buckets: [
-      { label: 'PR', displayLabel: 'PR', count: 18, color: '#007da5', radius: 1.2 },
-      { label: 'Issue', displayLabel: '이슈', count: 31, color: '#4f8f32', radius: 1.8 },
-      { label: 'Commit', displayLabel: '커밋', count: 74, color: '#c4457c', radius: 2.45 },
-      { label: 'Review', displayLabel: '리뷰', count: 12, color: '#b77900', radius: 3.0 },
-    ],
-  },
-  {
-    mode: 'month',
-    buttonLabel: '이번 달',
-    metricLabel: '월간',
-    insight: '이번 달은 이슈와 커밋 궤도가 넓게 쌓여 장기 흐름 비교에 적합합니다.',
-    buckets: [
-      { label: 'PR', displayLabel: 'PR', count: 52, color: '#007da5', radius: 1.2 },
-      { label: 'Issue', displayLabel: '이슈', count: 86, color: '#4f8f32', radius: 1.8 },
-      { label: 'Commit', displayLabel: '커밋', count: 164, color: '#c4457c', radius: 2.45 },
-      { label: 'Review', displayLabel: '리뷰', count: 41, color: '#b77900', radius: 3.0 },
-    ],
-  },
-] as const satisfies readonly PeriodOption[]
-
-const createActivityPoint = (bucket: ActivityBucket, bucketIndex: number, index: number): ActivityPoint => {
-  const angle = (index / bucket.count) * Math.PI * 2 + bucketIndex * 0.7
-  const spiral = bucket.radius + index * 0.006
-
-  return {
-    key: `${bucket.label}-${index}`,
-    color: bucket.color,
-    position: [
-      Math.cos(angle) * spiral,
-      Math.sin(index * 1.7) * 0.22 + bucketIndex * 0.08,
-      Math.sin(angle) * spiral,
-    ],
-  }
-}
-
-const createActivityPoints = (buckets: readonly ActivityBucket[]): ActivityPoint[] =>
-  buckets.flatMap((bucket, bucketIndex) =>
-    Array.from({ length: bucket.count }, (_, index) => createActivityPoint(bucket, bucketIndex, index)),
-  )
-
-const sumActivityCount = (buckets: readonly ActivityBucket[]) => buckets.reduce((sum, item) => sum + item.count, 0)
-
-const getTopBucket = (buckets: readonly ActivityBucket[]) =>
-  buckets.reduce((topBucket, bucket) => (bucket.count > topBucket.count ? bucket : topBucket), buckets[0])
-
-const getPeriodOption = (mode: PeriodMode) =>
-  PERIOD_OPTIONS.find((option) => option.mode === mode) ?? PERIOD_OPTIONS[0]
-
-type GalaxyProps = {
-  buckets: readonly ActivityBucket[]
-}
-
-function Galaxy({ buckets }: GalaxyProps) {
-  const groupRef = useRef<THREE.Group>(null)
-  const activityPoints = useMemo(() => createActivityPoints(buckets), [buckets])
-
-  useFrame(({ clock }) => {
-    if (groupRef.current) groupRef.current.rotation.y = clock.getElapsedTime() * 0.08
-  })
-
-  return (
-    <group ref={groupRef}>
-      {buckets.map((bucket) => (
-        <mesh key={`${bucket.label}-orbit`} rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[bucket.radius, 0.006, 8, 120]} />
-          <meshBasicMaterial color={bucket.color} transparent opacity={0.2} />
-        </mesh>
-      ))}
-      {activityPoints.map((point) => (
-        <mesh key={point.key} position={point.position}>
-          <sphereGeometry args={[0.042, 16, 16]} />
-          <meshStandardMaterial color={point.color} emissive={point.color} emissiveIntensity={0.6} />
-        </mesh>
-      ))}
-      {buckets.map((bucket, index) => (
-        <Html key={bucket.label} position={[bucket.radius + 0.2, 0.48 + index * 0.18, 0]}>
-          <span className="orbit-label" style={{ color: bucket.color }}>
-            {bucket.label} {bucket.count}
-          </span>
-        </Html>
-      ))}
-    </group>
-  )
-}
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 export default function App() {
   const [mode, setMode] = useState<PeriodMode>('week')
+  const [visibleKinds, setVisibleKinds] = useState<Set<ActivityKind>>(
+    () => new Set(['pull-request', 'issue', 'commit', 'review']),
+  )
+  const [selectedKind, setSelectedKind] = useState<ActivityKind>('commit')
+  const [isRotating, setIsRotating] = useState(() => !prefersReducedMotion())
+  const [resetRevision, setResetRevision] = useState(0)
   const selectedPeriod = getPeriodOption(mode)
-  const totalActivityCount = sumActivityCount(selectedPeriod.buckets)
-  const topBucket = getTopBucket(selectedPeriod.buckets)
+  const allActivityCount = sumActivityCount(selectedPeriod.buckets)
+  const visibleBuckets = selectedPeriod.buckets.filter((bucket) => visibleKinds.has(bucket.kind))
+  const visibleActivityCount = sumActivityCount(visibleBuckets)
+  const topBucket = getTopBucket(visibleBuckets)
+  const selectedBucket = selectedPeriod.buckets.find((bucket) => bucket.kind === selectedKind) ?? topBucket
+
+  const toggleBucketVisibility = (kind: ActivityKind) => {
+    if (visibleKinds.has(kind) && visibleKinds.size === 1) return
+
+    const nextVisibleKinds = new Set(visibleKinds)
+    if (nextVisibleKinds.has(kind)) nextVisibleKinds.delete(kind)
+    else nextVisibleKinds.add(kind)
+
+    setVisibleKinds(nextVisibleKinds)
+    if (!nextVisibleKinds.has(selectedKind)) {
+      setSelectedKind(nextVisibleKinds.values().next().value ?? kind)
+    }
+  }
 
   return (
-    <main className="shell">
-      <section className="panel" aria-labelledby="title">
-        <div className="summary">
-          <p className="kicker">GitHub Activity Galaxy</p>
-          <h1 id="title">저장소 활동을 밝은 3D 운영 지도로 읽습니다.</h1>
-          <p className="lead">
-            PR, 이슈, 커밋, 리뷰 신호를 궤도로 배치해 프로젝트 흐름을 시각화합니다. 초기 버전은
-            민감 정보 없이 샘플 데이터로 동작하고, 이후 PR에서 GitHub API 연결을 안전하게 확장합니다.
-          </p>
-          <div className="toolbar" role="group" aria-label="기간 선택">
-            {PERIOD_OPTIONS.map((option) => (
-              <button
-                key={option.mode}
-                className={mode === option.mode ? 'active' : ''}
-                type="button"
-                aria-pressed={mode === option.mode}
-                onClick={() => setMode(option.mode)}
-              >
-                {option.buttonLabel}
-              </button>
-            ))}
+    <main className="app-shell">
+      <header className="app-header">
+        <div className="brand-lockup">
+          <span className="brand-mark" aria-hidden="true" />
+          <div>
+            <h1>GitHub Activity Galaxy</h1>
+            <p>샘플 저장소 활동 지도</p>
           </div>
-          <p className="period-note" aria-live="polite">
-            {selectedPeriod.insight}
-          </p>
-          <dl className="metrics">
-            <div>
-              <dt>활동 노드</dt>
-              <dd>{totalActivityCount}</dd>
-              <p>{selectedPeriod.metricLabel} 샘플 활동 합계</p>
-            </div>
-            <div>
-              <dt>집중 신호</dt>
-              <dd>{topBucket.displayLabel}</dd>
-              <p>{topBucket.count}개 노드로 가장 큰 궤도</p>
-            </div>
-          </dl>
-          <ul className="bucket-list" aria-label={`${selectedPeriod.metricLabel} 활동 유형별 분포`}>
-            {selectedPeriod.buckets.map((bucket) => {
-              const share = Math.round((bucket.count / totalActivityCount) * 100)
+        </div>
+        <div className="period-switch" role="group" aria-label="활동 기간 선택">
+          {PERIOD_OPTIONS.map((option) => (
+            <button
+              key={option.mode}
+              className={mode === option.mode ? 'active' : ''}
+              type="button"
+              aria-pressed={mode === option.mode}
+              onClick={() => setMode(option.mode)}
+            >
+              {option.buttonLabel}
+            </button>
+          ))}
+        </div>
+      </header>
 
-              return (
-                <li key={bucket.label}>
-                  <span className="bucket-swatch" style={{ backgroundColor: bucket.color }} aria-hidden="true" />
-                  <span className="bucket-label">{bucket.displayLabel}</span>
-                  <strong>{bucket.count}</strong>
-                  <small>{share}%</small>
-                  <span className="bucket-share" aria-hidden="true">
-                    <span
-                      style={{
-                        width: `${share}%`,
-                        color: bucket.color,
-                        backgroundColor: bucket.color,
-                      }}
-                    />
-                  </span>
-                </li>
-              )
-            })}
-          </ul>
-        </div>
-        <div className="galaxy" aria-label={`${selectedPeriod.metricLabel} GitHub 활동 3D 지도`}>
-          <Canvas camera={{ position: [0, 3.2, 6.2], fov: 48 }}>
-            <color attach="background" args={['#f8fbff']} />
-            <ambientLight intensity={1} />
-            <directionalLight position={[0, 4, 4]} intensity={2.2} color="#ffffff" />
-            <pointLight position={[0, 4, 2]} intensity={10} color="#7ed8ee" />
-            <Galaxy buckets={selectedPeriod.buckets} />
-            <OrbitControls enablePan={false} minDistance={4} maxDistance={9} />
-            <EffectComposer>
-              <Bloom intensity={0.28} luminanceThreshold={0.36} luminanceSmoothing={0.28} />
-            </EffectComposer>
-          </Canvas>
-        </div>
-      </section>
+      <div className="workspace">
+        <aside className="activity-sidebar" aria-label="활동 요약과 표시 설정">
+          <section className="sidebar-section overview" aria-labelledby="overview-title">
+            <p className="eyebrow">{selectedPeriod.metricLabel} 요약</p>
+            <h2 id="overview-title">저장소 활동 개요</h2>
+            <p className="period-note" aria-live="polite">
+              {selectedPeriod.insight}
+            </p>
+            <dl className="metrics">
+              <div>
+                <dt>표시 노드</dt>
+                <dd>{visibleActivityCount}</dd>
+                <p>전체 {allActivityCount}개 중</p>
+              </div>
+              <div>
+                <dt>표시 궤도</dt>
+                <dd>{visibleBuckets.length}</dd>
+                <p>활동 유형 기준</p>
+              </div>
+              <div>
+                <dt>집중 신호</dt>
+                <dd>{topBucket.shortLabel}</dd>
+                <p>{topBucket.count}개 노드</p>
+              </div>
+            </dl>
+          </section>
+
+          <section className="sidebar-section" aria-labelledby="filter-title">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">레이어</p>
+                <h2 id="filter-title">활동 유형</h2>
+              </div>
+              <span>{visibleBuckets.length}/4 표시</span>
+            </div>
+            <ul className="bucket-list">
+              {selectedPeriod.buckets.map((bucket) => {
+                const isVisible = visibleKinds.has(bucket.kind)
+                const isOnlyVisibleBucket = isVisible && visibleKinds.size === 1
+                const share = getActivityShare(bucket, allActivityCount)
+
+                return (
+                  <li key={bucket.kind} className={bucket.kind === selectedKind ? 'selected' : ''}>
+                    <label className="bucket-toggle">
+                      <input
+                        type="checkbox"
+                        checked={isVisible}
+                        disabled={isOnlyVisibleBucket}
+                        onChange={() => toggleBucketVisibility(bucket.kind)}
+                      />
+                      <span className="bucket-swatch" style={{ backgroundColor: bucket.color }} aria-hidden="true" />
+                      <span className="bucket-name">
+                        <strong>{bucket.label}</strong>
+                        <small>{share}%</small>
+                      </span>
+                      <span className="bucket-count">{bucket.count}</span>
+                    </label>
+                    <button
+                      className="inspect-button"
+                      type="button"
+                      title={`${bucket.label} 상세 보기`}
+                      aria-label={`${bucket.label} 상세 보기`}
+                      aria-pressed={bucket.kind === selectedKind}
+                      disabled={!isVisible}
+                      onClick={() => setSelectedKind(bucket.kind)}
+                    >
+                      <ScanSearch size={17} strokeWidth={2} aria-hidden="true" />
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          </section>
+
+          <section className="sidebar-section inspector" aria-labelledby="inspector-title" aria-live="polite">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">선택 정보</p>
+                <h2 id="inspector-title">{selectedBucket.label}</h2>
+              </div>
+              <span className="inspector-count" style={{ color: selectedBucket.color }}>
+                {selectedBucket.count}
+              </span>
+            </div>
+            <p>{selectedBucket.description}</p>
+            <div className="share-meter" aria-label={`전체 활동의 ${getActivityShare(selectedBucket, allActivityCount)}%`}>
+              <span
+                style={{
+                  width: `${getActivityShare(selectedBucket, allActivityCount)}%`,
+                  backgroundColor: selectedBucket.color,
+                }}
+              />
+            </div>
+          </section>
+        </aside>
+
+        <section className="galaxy-stage" aria-labelledby="scene-title">
+          <header className="stage-toolbar">
+            <div>
+              <p className="eyebrow">3D 활동 지도</p>
+              <h2 id="scene-title">{selectedBucket.shortLabel} 궤도 탐색</h2>
+            </div>
+            <div className="stage-actions" role="toolbar" aria-label="3D 지도 제어">
+              <button
+                type="button"
+                title={isRotating ? '자동 회전 일시정지' : '자동 회전 재생'}
+                aria-label={isRotating ? '자동 회전 일시정지' : '자동 회전 재생'}
+                aria-pressed={!isRotating}
+                onClick={() => setIsRotating((current) => !current)}
+              >
+                {isRotating ? <Pause size={18} aria-hidden="true" /> : <Play size={18} aria-hidden="true" />}
+              </button>
+              <button
+                type="button"
+                title="3D 시점 초기화"
+                aria-label="3D 시점 초기화"
+                onClick={() => setResetRevision((revision) => revision + 1)}
+              >
+                <RotateCcw size={18} aria-hidden="true" />
+              </button>
+            </div>
+          </header>
+          <div
+            className="galaxy-canvas"
+            role="img"
+            aria-label={`${selectedPeriod.metricLabel} GitHub 활동 3D 지도. ${visibleBuckets.length}개 궤도와 ${visibleActivityCount}개 노드 표시 중.`}
+          >
+            <GalaxyScene
+              buckets={visibleBuckets}
+              selectedKind={selectedKind}
+              isRotating={isRotating}
+              resetRevision={resetRevision}
+            />
+          </div>
+          <footer className="stage-status" aria-live="polite">
+            <span className="status-dot" style={{ backgroundColor: selectedBucket.color }} aria-hidden="true" />
+            <strong>{selectedBucket.shortLabel}</strong>
+            <span>{selectedBucket.count}개 노드 강조</span>
+            <span className="motion-status">자동 회전 {isRotating ? '켜짐' : '꺼짐'}</span>
+          </footer>
+        </section>
+      </div>
     </main>
   )
 }
