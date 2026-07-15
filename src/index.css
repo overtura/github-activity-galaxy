@@ -185,6 +185,38 @@ input:focus-visible {
   line-height: 1.35;
 }
 
+.display-mode {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  margin-top: 16px;
+  padding: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-frame);
+  background: var(--color-bg);
+}
+
+.display-mode button {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 0;
+  border-radius: 5px;
+  color: var(--color-muted);
+  background: transparent;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.display-mode button:hover,
+.display-mode button.active {
+  color: var(--color-primary-ink);
+  background: var(--color-primary);
+}
+
 .section-heading {
   display: flex;
   align-items: center;
@@ -197,6 +229,31 @@ input:focus-visible {
   color: var(--color-subtle);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
+}
+
+.filter-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-tools button {
+  min-height: 28px;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  padding: 0 8px;
+  color: var(--color-muted);
+  background: var(--color-surface-strong);
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.filter-tools button:hover,
+.filter-tools button.active {
+  color: var(--color-primary);
+  border-color: color-mix(in srgb, var(--color-primary) 34%, var(--color-border));
+  background: color-mix(in srgb, var(--color-primary) 7%, transparent);
 }
 
 .bucket-list {
@@ -313,6 +370,37 @@ input:focus-visible {
   line-height: 1.55;
 }
 
+.inspector-navigation {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 3px;
+  color: var(--color-subtle);
+  background: var(--color-bg);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.inspector-navigation button {
+  width: 26px;
+  height: 26px;
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  border-radius: 4px;
+  color: var(--color-muted);
+  background: transparent;
+  cursor: pointer;
+}
+
+.inspector-navigation button:hover {
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+}
+
 .section-heading .inspector-count {
   color: inherit;
   font-size: 24px;
@@ -405,6 +493,12 @@ input:focus-visible {
   margin-left: auto;
 }
 
+.view-status {
+  padding-left: 8px;
+  border-left: 1px solid var(--color-border);
+  color: var(--color-subtle);
+}
+
 .orbit-label {
   display: block;
   min-width: max-content;
@@ -491,5 +585,9 @@ input:focus-visible {
 
   .motion-status {
     display: none;
+  }
+
+  .view-status {
+    margin-left: auto;
   }
 }

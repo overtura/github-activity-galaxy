@@ -1,4 +1,4 @@
-import { Pause, Play, RotateCcw, ScanSearch } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Focus, Layers3, Pause, Play, RotateCcw, ScanSearch } from 'lucide-react'
 import { useState } from 'react'
 import {
   getActivityShare,
@@ -16,6 +16,8 @@ const prefersReducedMotion = () =>
 
 export default function App() {
   const [mode, setMode] = useState<PeriodMode>('week')
+  const [viewMode, setViewMode] = useState<'overview' | 'focus'>('overview')
+  const [listOrder, setListOrder] = useState<'default' | 'count'>('default')
   const [visibleKinds, setVisibleKinds] = useState<Set<ActivityKind>>(
     () => new Set(['pull-request', 'issue', 'commit', 'review']),
   )
@@ -28,6 +30,11 @@ export default function App() {
   const visibleActivityCount = sumActivityCount(visibleBuckets)
   const topBucket = getTopBucket(visibleBuckets)
   const selectedBucket = selectedPeriod.buckets.find((bucket) => bucket.kind === selectedKind) ?? topBucket
+  const listedBuckets = [...selectedPeriod.buckets].sort((left, right) =>
+    listOrder === 'count' ? right.count - left.count : 0,
+  )
+  const sceneBuckets = viewMode === 'focus' ? visibleBuckets.filter((bucket) => bucket.kind === selectedKind) : visibleBuckets
+  const sceneActivityCount = sumActivityCount(sceneBuckets)
 
   const toggleBucketVisibility = (kind: ActivityKind) => {
     if (visibleKinds.has(kind) && visibleKinds.size === 1) return
@@ -40,6 +47,13 @@ export default function App() {
     if (!nextVisibleKinds.has(selectedKind)) {
       setSelectedKind(nextVisibleKinds.values().next().value ?? kind)
     }
+  }
+
+  const selectRelativeBucket = (direction: -1 | 1) => {
+    const navigableBuckets = listedBuckets.filter((bucket) => visibleKinds.has(bucket.kind))
+    const currentIndex = navigableBuckets.findIndex((bucket) => bucket.kind === selectedKind)
+    const nextIndex = (currentIndex + direction + navigableBuckets.length) % navigableBuckets.length
+    setSelectedKind(navigableBuckets[nextIndex]?.kind ?? selectedKind)
   }
 
   return (
@@ -92,6 +106,26 @@ export default function App() {
                 <p>{topBucket.count}개 노드</p>
               </div>
             </dl>
+            <div className="display-mode" role="group" aria-label="활동 보기 방식">
+              <button
+                type="button"
+                className={viewMode === 'overview' ? 'active' : ''}
+                aria-pressed={viewMode === 'overview'}
+                onClick={() => setViewMode('overview')}
+              >
+                <Layers3 size={15} aria-hidden="true" />
+                전체 비교
+              </button>
+              <button
+                type="button"
+                className={viewMode === 'focus' ? 'active' : ''}
+                aria-pressed={viewMode === 'focus'}
+                onClick={() => setViewMode('focus')}
+              >
+                <Focus size={15} aria-hidden="true" />
+                선택 집중
+              </button>
+            </div>
           </section>
 
           <section className="sidebar-section" aria-labelledby="filter-title">
@@ -100,10 +134,20 @@ export default function App() {
                 <p className="eyebrow">레이어</p>
                 <h2 id="filter-title">활동 유형</h2>
               </div>
-              <span>{visibleBuckets.length}/4 표시</span>
+              <div className="filter-tools">
+                <button
+                  type="button"
+                  className={listOrder === 'count' ? 'active' : ''}
+                  aria-pressed={listOrder === 'count'}
+                  onClick={() => setListOrder((current) => (current === 'default' ? 'count' : 'default'))}
+                >
+                  건수순
+                </button>
+                <span>{visibleBuckets.length}/4 표시</span>
+              </div>
             </div>
             <ul className="bucket-list">
-              {selectedPeriod.buckets.map((bucket) => {
+              {listedBuckets.map((bucket) => {
                 const isVisible = visibleKinds.has(bucket.kind)
                 const isOnlyVisibleBucket = isVisible && visibleKinds.size === 1
                 const share = getActivityShare(bucket, allActivityCount)
@@ -151,6 +195,15 @@ export default function App() {
                 {selectedBucket.count}
               </span>
             </div>
+            <div className="inspector-navigation" role="group" aria-label="활동 유형 탐색">
+              <button type="button" title="이전 활동 유형" aria-label="이전 활동 유형" onClick={() => selectRelativeBucket(-1)}>
+                <ChevronLeft size={16} aria-hidden="true" />
+              </button>
+              <span>화살표로 비교</span>
+              <button type="button" title="다음 활동 유형" aria-label="다음 활동 유형" onClick={() => selectRelativeBucket(1)}>
+                <ChevronRight size={16} aria-hidden="true" />
+              </button>
+            </div>
             <p>{selectedBucket.description}</p>
             <div className="share-meter" aria-label={`전체 활동의 ${getActivityShare(selectedBucket, allActivityCount)}%`}>
               <span
@@ -192,10 +245,10 @@ export default function App() {
           <div
             className="galaxy-canvas"
             role="img"
-            aria-label={`${selectedPeriod.metricLabel} GitHub 활동 3D 지도. ${visibleBuckets.length}개 궤도와 ${visibleActivityCount}개 노드 표시 중.`}
+            aria-label={`${selectedPeriod.metricLabel} GitHub 활동 3D 지도. ${sceneBuckets.length}개 궤도와 ${sceneActivityCount}개 노드 표시 중.`}
           >
             <GalaxyScene
-              buckets={visibleBuckets}
+              buckets={sceneBuckets}
               selectedKind={selectedKind}
               isRotating={isRotating}
               resetRevision={resetRevision}
@@ -205,6 +258,7 @@ export default function App() {
             <span className="status-dot" style={{ backgroundColor: selectedBucket.color }} aria-hidden="true" />
             <strong>{selectedBucket.shortLabel}</strong>
             <span>{selectedBucket.count}개 노드 강조</span>
+            <span className="view-status">{viewMode === 'focus' ? '선택 유형만 보기' : `${sceneBuckets.length}개 유형 비교`}</span>
             <span className="motion-status">자동 회전 {isRotating ? '켜짐' : '꺼짐'}</span>
           </footer>
         </section>
