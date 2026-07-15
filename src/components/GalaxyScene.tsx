@@ -59,8 +59,8 @@ function Galaxy({ buckets, selectedKind, isRotating }: GalaxyProps) {
   const groupRef = useRef<THREE.Group>(null)
   const activityPoints = useMemo(() => createActivityPoints(buckets), [buckets])
 
-  useFrame(({ clock }) => {
-    if (groupRef.current && isRotating) groupRef.current.rotation.y = clock.getElapsedTime() * 0.08
+  useFrame((_, delta) => {
+    if (groupRef.current && isRotating) groupRef.current.rotation.y += Math.min(delta, 0.1) * 0.08
   })
 
   return (

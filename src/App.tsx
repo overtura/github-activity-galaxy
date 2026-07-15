@@ -225,9 +225,9 @@ export default function App() {
             <div className="stage-actions" role="toolbar" aria-label="3D 지도 제어">
               <button
                 type="button"
-                title={isRotating ? '자동 회전 일시정지' : '자동 회전 재생'}
-                aria-label={isRotating ? '자동 회전 일시정지' : '자동 회전 재생'}
-                aria-pressed={!isRotating}
+                title={isRotating ? '자동 회전 켜짐' : '자동 회전 꺼짐'}
+                aria-label="자동 회전"
+                aria-pressed={isRotating}
                 onClick={() => setIsRotating((current) => !current)}
               >
                 {isRotating ? <Pause size={18} aria-hidden="true" /> : <Play size={18} aria-hidden="true" />}
